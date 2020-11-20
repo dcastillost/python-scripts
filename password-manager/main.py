@@ -16,8 +16,8 @@ def get_new_password():
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def get_inputs():
-    """Returns a string with the data to save.
-    Each field is separated with a '|' character.
+    """
+    Returns a list with the data to save.
     """
     return [website_input.get(), user_input.get(), password_input.get()]
 
@@ -50,8 +50,9 @@ def save():
     if not field_is_empty():
         if data_is_ok():
             try:
-                with open('passwords.json', 'r') as f:
-                    data = json.load(f) # Read previous data     
+                data = load_file('passwords.json')
+                # with open('passwords.json', 'r') as f:
+                #     data = json.load(f) # Read previous data 
             except FileNotFoundError:
                 data = new_data
             else:
@@ -60,6 +61,26 @@ def save():
                 with open('passwords.json', 'w') as f:
                     json.dump(data, f, indent=4) # Write data to file
                 clean_entry_fields()
+
+# ------------------------ PASSWORD SEARCH ---------------------------- #
+def find_password():
+    website = get_inputs()[0]
+    try:
+        data = load_file('passwords.json')
+    except FileNotFoundError:
+        messagebox.showinfo(title='Oops', message='You haven\'t saved any passwords yet.')
+    else:
+        if website in data:
+            messagebox.showinfo(title='Password info', message=f'User: {data[website]["user"]}\nPassword: {data[website]["password"]}\nPassword copied to clipboard.')
+            pyperclip.copy(data[website]["password"])
+            # messagebox.askquestion
+        else:
+            messagebox.showinfo(title='Password not found', message='No details for the website exist.')
+
+# ----------------------- AUXILIARY FUNCTIONS -------------------------- #
+def load_file(path):
+    with open(path, 'r') as f:
+            return json.load(f)
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -84,22 +105,25 @@ password_label = Label(window, text='Password')
 password_label.grid(row=3, column=0)
 
 # Inputs
-website_input = Entry(width=44)
-website_input.grid(row=1, column=1, columnspan=2)
+website_input = Entry(width=25)
+website_input.grid(row=1, column=1)
 
 user_input = Entry(width=44)
 user_input.insert(0, EMAIL)
 user_input.grid(row=2, column=1, columnspan=2)
 
-password_input = Entry(width=24)
+password_input = Entry(width=25)
 password_input.grid(row=3, column=1)
 
 # Buttons
-gen_pw_button = Button(text='Generate password', command=get_new_password)
-gen_pw_button.grid(row=3, column=2)
+search_button = Button(text='Search', width=15, command=find_password)
+search_button.grid(row=1, column=2, sticky=W+E)
 
-add_button = Button(text='Add', width=36, command=save)
-add_button.grid(row=4, column=1, columnspan=2)
+gen_pw_button = Button(text='Generate password', command=get_new_password)
+gen_pw_button.grid(row=3, column=2, sticky=W)
+
+add_button = Button(text='Add', width=20, command=save)
+add_button.grid(row=4, column=1)
 
 
 #Window loop
