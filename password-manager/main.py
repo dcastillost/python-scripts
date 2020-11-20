@@ -2,6 +2,7 @@
 from tkinter import *
 from tkinter import messagebox
 import pyperclip
+import json
 
 from user_info import EMAIL
 from generate_password import create_new_password
@@ -39,12 +40,26 @@ def clean_entry_fields():
     password_input.delete(0, END)
 
 def save():
-    data = ' | '.join(get_inputs()) + '\n'
+    website, user, password = get_inputs()
+    new_data = {
+        website:{
+            'user': user,
+            'password': password
+        }
+    }
     if not field_is_empty():
         if data_is_ok():
-            with open('passwords.txt', 'a') as f:
-                f.write(data)
-            clean_entry_fields()
+            try:
+                with open('passwords.json', 'r') as f:
+                    data = json.load(f) # Read previous data     
+            except FileNotFoundError:
+                data = new_data
+            else:
+                data.update(new_data) # Update data
+            finally:
+                with open('passwords.json', 'w') as f:
+                    json.dump(data, f, indent=4) # Write data to file
+                clean_entry_fields()
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
