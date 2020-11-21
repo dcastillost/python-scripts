@@ -3,3 +3,6 @@
 */passwords.txt
 */passwords.json
 *.pyc
+*/.ipynb_checkpoints
+*/__pycache__
+*/birthdays.csv
